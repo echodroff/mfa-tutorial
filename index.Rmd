@@ -12,7 +12,9 @@ author:
 format:
   html: default
 license: "CC-BY-SA 4.0"
-citation: true
+citation:
+  container-title: "Linguistics Methods Hub"
+  collection-title: "Linguistics Methods Hub"
 ---
 
 ## Overview
