@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+title: Montreal Forced Aligner
+message: >-
+  If you use this tutorial, please cite it using the
+  metadata from this file.
+type: website
+authors:
+  - given-names: Eleanor
+    family-names: Chodroff
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.7161015
+  - type: url
+    value: >-
+      https://lingmethodshub.github.io/content/tools/mfa/mfa-tutorial
+license: CC-BY-SA-4.0
+date-released: '2022-10-07'
+year: '2022'
+collection-title: Linguistics Methods Hub
