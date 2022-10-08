@@ -2,13 +2,13 @@
 title: "Montreal Forced Aligner"
 date: "2022-10-5"
 author:
-  name: "Eleanor Chodroff"
-  url: "https://www.eleanorchodroff.com/"
-  #orcid:
-  #email:
-  #affiliations:
-    #name:
-    #department:
+  - name: "Eleanor Chodroff"
+    url: "https://www.eleanorchodroff.com/"
+    #orcid:
+    #email:
+    #affiliations:
+      #name:
+      #department:
 format:
   html: default
 license: "CC-BY-SA 4.0"
