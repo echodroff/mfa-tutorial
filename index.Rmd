@@ -141,7 +141,7 @@ The MFA can take as input either a Praat `TextGrid` or a `.lab` or `.txt` file. 
 
 The filename of the `wav` file and its corresponding transcript must be identical except for the extension (`.wav` or `.TextGrid`). If you have multiple speakers in the alignment or training, you can actually implement some degree of speaker/channel adaptation. You can do this either by placing speaker-specific files in its own subfolder within the input folder, or by adding an optional argument to the `mfa align` command to use the first `n` characters of the filename.
 
-If you go forward with this, it helps to have the speaker ID as the prefix to the filenamex. For example:
+If you go forward with this, it helps to have the speaker ID as the prefix to the filenames. For example:
 
 ```{bash eval = F}
 spkr01_utt1.wav, spkr01_utt1.TextGrid  
