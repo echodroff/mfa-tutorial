@@ -15,6 +15,7 @@ license: "CC-BY-SA 4.0"
 citation: true
 ---
 
+
 ## Overview
 
 The [Montreal Forced Aligner](https://montreal-forced-aligner.readthedocs.io/en/latest/index.html){target="_blank"} is a forced alignment system with acoustic models built using the [Kaldi ASR toolkit](https://eleanorchodroff.com/tutorial/kaldi/introduction.html){target="_blank"}. A major highlight of this system is the availability of pretrained acoustic models and  grapheme-to-phoneme models for a wide variety of languages, as well as the ability to train acoustic and grapheme-to-phoneme models to any new dataset you might have. It also uses advanced techniques for training and aligning speech data (Kaldi) with a full suite of training and speaker adaptation algorithms. The basic acoustic model recipe uses the traditional GMM-HMM framework, starting with monophone models, then triphone models (which allow for context sensitivity, read: coarticulation), and some transformations and speaker adaptation along the way. You can check out more regarding the recipes in the [MFA user guide and reference guide](https://montreal-forced-aligner.readthedocs.io/en/latest/); for an overview to a standard training recipe, check out this [Kaldi tutorial](https://www.eleanorchodroff.com/tutorial/kaldi/training-overview.html). 
@@ -33,9 +34,22 @@ Very generally, the procedure for forced alignment is as follows:
 * Create an empty output folder
 * Run the ``mfa align`` command
 
+Useful links:
+
++ [MFA installation page](https://montreal-forced-aligner.readthedocs.io/en/latest/installation.html){target="_blank"}
++ [MFA Github page for posting issues and finding solutions](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/issues){target="_blank"}
++ [Acoustic model master list](https://mfa-models.readthedocs.io/en/latest/acoustic/index.html){target="_blank"}
++ [Pronunciation dictionary master list](https://mfa-models.readthedocs.io/en/latest/dictionary/index.html){target="_blank"}
++ [G2P model master list](https://mfa-models.readthedocs.io/en/latest/g2p/index.html){target="_blank"}
++ [Epitran G2P](https://github.com/dmort27/epitran){target="_blank"}
++ [XPF Corpus G2P](https://cohenpr-xpf.github.io/XPF/Convert-to-IPA.html){target="_blank"} 
++ [Blog post by Michael McAuliffe about necessary training data](https://memcauliffe.com/how-much-data-do-you-need-for-a-good-mfa-alignment.html){target="_blank}
++ [VoxCommunis (Common Voice) acoustic models and dictionaries](https://osf.io/t957v/){target="_blank"}
+
+
 ## Installation
 
-You can find the streamlined installation instructions on the [main MFA installation page](https://montreal-forced-aligner.readthedocs.io/en/latest/installation.html). The majority of users will be following the "All platforms" instructions. 
+You can find the streamlined installation instructions on the [main MFA installation page](https://montreal-forced-aligner.readthedocs.io/en/latest/installation.html){target="_blank"}. The majority of users will be following the "All platforms" instructions. 
 
 As listed there, you will need to download Miniconda or Anaconda. If you're trying to decide between the two, I'd probably recommend Miniconda. Compared to Anaconda, Miniconda is smaller, and has a slightly higher success rate for installation. Conda is a package and environment management system. If you're familiar with R, the package management system is similar in concept to the R CRAN server. Once installed, you can import sets of packages via the ``conda`` commands, similar to how you might run ``install.packages`` in R. The environment manager aspect of conda is fairly unique, and essentially creates a small environment on your computer for the collection of imported packages (here the MFA suite) to run. The primary advantage is that you don't have to worry about conflicting versions of the same code package on your computer; the environment will be a bubble in your computer with the correct package versions for the MFA suite. 
 
@@ -45,7 +59,8 @@ Once you've installed Miniconda/Anaconda, you'll run the following line of code 
 conda create -n aligner -c conda-forge montreal-forced-aligner
 ```
 
-The `-n` flag here refers to the *name* of the environment. If you want to test a new version of the aligner, but aren't ready to overwrite your old working version of the aligner, you can create a new environment using a different name after the `-n` flag. See \@ref(Tips and tricks) for more on conda environments. 
+The `-n` flag here refers to the *name* of the environment. If you want to test a new version of the aligner, but aren't ready to overwrite your old working version of the aligner, you can create a new environment using a different name after the `-n` flag. See \@ref(tips-and-tricks) for more on conda environments. 
+
 If it's worked, you should see something like:
 ```{r eval = F}
 # To activate this environment, use
@@ -70,39 +85,24 @@ You can run the aligner from any location on the computer as long as you're in t
 
 ## Running the aligner
 
-To run the aligner, we'll need to follow this procedure:
+To run the aligner, we'll need to follow the procedure listed above. In this section, I will give a quick example of how this works using a hypothetical example of aligning American English. In the following sections, I'll go into more detail about each of these steps. 
 
-* Prep audio file(s)
-* Prep transcript(s) (Praat `TextGrids` or `.lab`/`.txt` files)
-* Obtain a pronunciation dictionary
-* Obtain an acoustic model
-* Create an input folder that contains the audio files and transcripts
-* Create an empty output folder
-* Run the align command
+For the first steps of prepping the audio files and prepping the transcripts, I'll assume we're working with a `wav` file and a Praat `TextGrid` that has a single interval tier with utterances transcribed in English. Each interval in the `TextGrid` corresponds to an utterance in the wav file. A good rule of thumb is to keep utterances less than 30 seconds; accuracy can improve with smaller windows, but you can still get lucky in getting the job done even with bigger windows. The `wav` file and `TextGrid` must have the same name. 
 
-In this section, I will give a quick example of how this works using a hypothetical example of aligning American English. Through this, you'll see the primary ``mfa`` commands that you'll need for alignment. Then in the following sections, I'll go into more detail about each of these steps. 
+After we have the audio files and transcript `TextGrids`, we'll place them in an input folder. For the sake of this tutorial, this input folder will be called ``Documents/input_english/``. We will also need to create an empty output folder. I will call this output folder ``Documents/output_english``. 
 
-For the first steps of prepping the audio files and prepping the transcripts, I'll assume we're working with a `wav` file and a Praat `TextGrid` that has a single interval tier with utterances transcribed in English. We can have multiple intervals per `TextGrid`. The `wav` file and `TextGrid` must have the same name. 
-
-After we have the audio files and transcript `TextGrids`, we'll place them in an input folder. For the sake of this tutorial, this input folder will be called ``Documents/input_english/``. 
-
-We will also need to create an empty output folder. I will call this output folder ``Documents/output_english``. 
-
-We can then obtain the acoustic model from the internet (yes, you'll have to be online the first time you do this) using the following command:
+We can then obtain the acoustic model from the internet using the following command. (You can also use ``mfa models download acoustic english_us_arpa``.)
 
 ```{r eval = F}
 mfa model download acoustic english_us_arpa
 ```
 
-(You can also use ``mfa models download acoustic english_us_arpa``.)
-
-And we can obtain the dictionary from the internet using this command:
+And we can obtain the dictionary from the internet using this command. (You can also use ``mfa models download dictionary english_us_arpa``.)
 
 ```{r eval = F}
 mfa model download dictionary english_us_arpa
 ```
 
-(You can also use ``mfa models download dictionary english_us_arpa``.)
 
 The dictionary and acoustic model can now be found in their respective ``Documents/MFA/pretrained_models/`` folders. 
 
@@ -111,8 +111,8 @@ Once we have the dictionary, acoustic model, `wav` files and `TextGrids` in thei
 The alignment command is called ``align`` and takes 4 arguments:
 
 + path to the input folder
-+ name of the dictionary (in the ``Documents/MFA/pretrained_models/dictionary/`` folder) / path to the acoustic model if it's elsewhere on the computer
-+ name of the acoustic model (in the ``Documents/MFA/pretrained_models/acoustic/`` folder) / path to the acoustic model if it's elsewhere on the computer
++ name of the dictionary (in the ``Documents/MFA/pretrained_models/dictionary/`` folder) or path to the acoustic model if it's elsewhere on the computer
++ name of the acoustic model (in the ``Documents/MFA/pretrained_models/acoustic/`` folder) or path to the acoustic model if it's elsewhere on the computer
 + path to the output folder
 
 I always add the optional ``--clean`` flag as this "cleans" out any old temporary files created in a previous run. (If you're anything like me, you might find yourself re-running the aligner a few times, and with the same input filename. The aligner won't actually re-run properly unless you clear out the old files.)
@@ -133,8 +133,10 @@ The Montreal Forced Aligner is incredibly robust to audio files of differing for
 ### Transcripts
 The MFA can take as input either a Praat `TextGrid` or a `.lab` or `.txt` file. I have worked most extensively with the `TextGrid` input, so I'll describe those details here. As for `.lab` and `.txt` input, I believe this method only works when the transcript is pasted in as a single line. In other words, I don't think it can handle time stamps for utterance start and end times. 
 
+As described above, the Praat TextGrid should contain a single tier with intervals that are preferably on the shorter side. I've noticed that the biggest gains you can make in alignment accuracy tend to come from simply shortening the input window. Within the TextGrid, each interval should correspond to an utterance  to an utterance in the wav file, and all the words in the utterance should ideally have an entry in the pronunciation dictionary. You can (but do not have to) specify the speaker ID using the tier name, which then allows the aligner to then perform speaker adaptation in training or alignment. A few more options for indicating speaker/channel IDs are provided below in \@ref(filenames). 
+
 ### Filenames
-The filename of the `wav` file and its corresponding transcript must be identical except for the extension (`.wav` or `.TextGrid`). If you have multiple speakers in the alignment or training, you can actually implement some degree of speaker/channel adaptation. You can do this either by placing speaker-specific files in its own subfolder within the input folder, or by adding an optional argument to the ``mfa align`` command to use the first ``n`` characters of the filename.
+The filename of the `wav` file and its corresponding transcript must be identical except for the extension (`.wav` or `.TextGrid`). If you have multiple speakers/recording channels in the alignment or training, you can either specify this ID in the tier name of the TextGrid, or add an optional argument to the ``mfa align`` command to use the first ``n`` characters of the filename.
 
 If you go forward with this, it helps to have the speaker ID as the prefix to the filenamex. For example:
 
@@ -160,6 +162,8 @@ Alternatively:
 mfa align --speaker_characters 6 --clean /Users/Eleanor/input_english/ english_us_arpa english_us_arpa /Users/Eleanor/output_english/
 ```
 
+
+
 ### Input and output folders
 
 I would recommend creating a special input folder that houses a copy of your audio files and `TextGrid` transcripts. In case something goes wrong, you won't be messing up the raw data. You can place this folder basically anywhere on your computer, and you can call this whatever you want. 
@@ -169,36 +173,51 @@ You will also need to create an empty output folder. I recommend making sure thi
 ## Obtaining acoustic models
 
 ### Download an acoustic model
-Pretrained acoustic models for several languages can be downloaded directly using the command line interface. This is the [master list](https://mfa-models.readthedocs.io/en/latest/acoustic/index.html) of acoustic models available for download. 
+Pretrained acoustic models for several languages can be downloaded directly using the command line interface. This is the [master list](https://mfa-models.readthedocs.io/en/latest/acoustic/index.html){target="_blank"} of acoustic models available for download. 
 
 ### Train an acoustic model
-You can also train an acoustic model yourself directly on the data you're working on. You do need a fair amount of data to get reasonable alignments out. If an existing acoustic model already exists, it might be worth simply using that directly on your data or you could try [adapting](https://montreal-forced-aligner.readthedocs.io/en/latest/user_guide/workflows/adapt_acoustic_model.html) the model to your data. There are many cases, however, when training a new acoustic model is the best path forward. 
+You can also train an acoustic model yourself directly on the data you're working on. You do need a fair amount of data to get reasonable alignments out. I would probably recommend a bare minimum of 30 minutes of actual speech, and if and only if you're lucky, this will produce something reasonable. Referencing experience alone, more stability seems to come at around 2 hours of actual speech at a minimum. This is just a heuristic, and the more you have, the better. For more research on this, and a recommendation for even more data, see this [blog post.](https://memcauliffe.com/how-much-data-do-you-need-for-a-good-mfa-alignment.html){target="_blank}).
 
 The ``mfa train`` command takes 3 arguments:
 
 + path to the input folder with the audio files and utterance-level transcripts (`TextGrids`)
 + name of the pronunciation dictionary in the ``pretrained_models`` folder or path to the pronunciation dictionary
-+ path to the output folder (it still runs an alignment at the end)
++ path to the output acoustic model (zip file)
 
-In other words, ``mfa train`` has the same syntax and requirements as the ``mfa align`` command, but without the acoustic model specification. 
 
 ```{r eval = F}
-mfa train --clean ~/Documents/input_spanish ~/Documents/talnupf_spanish.txt ~/Documents/output_spanish_textgrids
+mfa train --clean ~/Documents/input_spanish ~/Documents/talnupf_spanish.txt ~/Documents/spanish_model.zip
 ```
 
 Once again, I'm using the ``--clean`` flag just in case I need to clean out an old folder in ``Documents/MFA``. 
 
-If you would like to reuse the acoustic model, you can find all of the trained models (there are several -- one for each layer of training) in the associated folder in ``Documents/MFA/`` and any folder ending in ``_ali``. I would recommend using the acoustic model from the last training and alignment pass, which is the ``sat2_ali`` folder. ``sat2_ali`` stands for the second round of Speaker Adaptive Training --- alignment pass. 
-
-The ``mfa model save acoustic`` command takes one required argument, which is the path to the model you want to save, and an optional (but highly recommended) argument which is the new name of the acoustic model. The optional argument is specified after the ``--name`` flag:
+Once you obtain the acoustic model, you can use it normally to align the files. (It seems that the MFA is generating alignments during the acoustic model training, but in the version I currently have, these are not being saved. Easy solution: just run the ``align`` algorithm.)
 
 ```{r eval = F}
-mfa model save acoustic --name guarani_cv ~/Documents/MFA/mfainput4guarani/sat3_ali/acoustic_model.zip 
+mfa align --clean ~/Documents/input_spanish ~/Documents/talnupf_spanish.txt ~/Documents/spanish_model.zip ~/Documents/output_spanish
+```
+
+Or if you place the dictionary and acoustic model in the respective pretrained_models folder, then:
+
+```{r eval = F}
+mfa align --clean ~/Documents/input_spanish talnupf_spanish spanish_model ~/Documents/output_spanish
+```
+
+### Adapt an existing acoustic model
+If an existing acoustic model already exists, it might be worth simply using that directly on your data or you could try [adapting](https://montreal-forced-aligner.readthedocs.io/en/latest/user_guide/workflows/adapt_acoustic_model.html) the model to your data. Adapting an acoustic model requires that you create a dictionary for the new data with the same phone set as the existing model. The `adapt` command takes 4 arguments:
+
++ path to the corpus
++ path to the new dictionary
++ path to the existing acoustic model
++ path to the output model
+
+```{r eval = F}
+mfa adapt --clean ~/Documents/input_spanish ~/Documents/talnupf_spanish.txt ~/Documents/existing_spanish_model.zip ~/Documents/adapted_spanish_model.zip
 ```
 
 ## Obtaining dictionaries
 
-The pronunciation dictionary must be a two column text file with a list of words on the left-hand side and the phonetic pronunciation(s) on the right-hand side. Each word should be separated from its phonetic pronunciation by a tab, and each phone in the phonetic pronunciation should be separated by a space. Many-to-many mappings between words and pronunciations are permitted. In fact, you can even add [pronunciation probabilities](https://montreal-forced-aligner.readthedocs.io/en/latest/user_guide/workflows/training_dictionary.html) to the dictionary, but I have not yet tried this!
+The pronunciation dictionary must be a two column text file with a list of words on the left-hand side and the phonetic pronunciation(s) on the right-hand side. Each word should be separated from its phonetic pronunciation by a tab, and each phone in the phonetic pronunciation should be separated by a space. Many-to-many mappings between words and pronunciations are permitted. In fact, you can even add [pronunciation probabilities](https://montreal-forced-aligner.readthedocs.io/en/latest/user_guide/workflows/training_dictionary.html){target="_blank"} to the dictionary, but I have not yet tried this!
 
 One important point: the phone set in your dictionary must match that used in the acoustic models and the orthography must match that in the transcripts.
 
@@ -206,7 +225,7 @@ There are a few options for obtaining a pronunciation dictionary:
 
 ### Download a dictionary
 
-This is the [master list](https://mfa-models.readthedocs.io/en/latest/dictionary/index.html) of pre-existing pronunciation dictionaries available through the MFA. Click on the dictionary of interest, and if you scroll to the bottom of the page, it will tell you the name to type in the ``mfa model download dictionary`` command. 
+This is the [master list](https://mfa-models.readthedocs.io/en/latest/dictionary/index.html){target="_blank"} of pre-existing pronunciation dictionaries available through the MFA. Click on the dictionary of interest, and if you scroll to the bottom of the page, it will tell you the name to type in the ``mfa model download dictionary`` command. 
 
 ```{r eval = F}
 mfa model download dictionary spanish_latin_america_mfa
@@ -218,7 +237,7 @@ NB: you must add any missing words in your corpus manually, or train a G2P model
 
 Grapheme-to-phoneme (G2P) models automatically convert the orthographic words in your corpus to the most likely phonetic pronunciation. How exactly it does this depends a lot on the type of model and its training data.
 
-The MFA has a handful of pretrained G2P models that you can download. This is the [master list](https://mfa-models.readthedocs.io/en/latest/g2p/index.html) of G2P models available for download.  
+The MFA has a handful of pretrained G2P models that you can download. This is the [master list](https://mfa-models.readthedocs.io/en/latest/g2p/index.html){target="_blank"}  of G2P models available for download.  
 
 ```{r eval = F}
 mfa model download g2p bulgarian_mfa
@@ -234,7 +253,7 @@ You'll then use the ``mfa g2p`` command to generate the phonetic transcriptions 
 mfa g2p --clean bulgarian_mfa ~/Desktop/romanian/TextGrids_with_new_words/ ~/Desktop/new_bulgarian_dictionary.txt
 ```
 
-You can also use an external resource like [Epitran](https://github.com/dmort27/epitran) or [XPF](https://cohenpr-xpf.github.io/XPF/Convert-to-IPA.html) to generate a dictionary for you. These are both rule-based G2P systems built by linguists; these systems work to varying degrees of success. 
+You can also use an external resource like [Epitran](https://github.com/dmort27/epitran){target="_blank"} or [XPF](https://cohenpr-xpf.github.io/XPF/Convert-to-IPA.html){target="_blank"} to generate a dictionary for you. These are both rule-based G2P systems built by linguists; these systems work to varying degrees of success. 
 
 In all cases, you're best off checking the output. Remember that the phone set in the dictionary must entirely match the phone set in the acoustic model.
 
@@ -253,52 +272,13 @@ mfa train_g2p ~/Desktop/romanian/romanian_lexicon.txt ~/Desktop/romanian/romania
 
 ### Create the dictionary by hand 
 
-This one is self-explanatory, but once again, make sure to use the same phone set as the acoustic models.
+This one is self-explanatory, but once again, make sure to use the same phone set as the acoustic models. See below regarding the ``validate`` command to cross-check the dictionary phones against the acoustic model phones. This will ensure you don't have a typo in your dictionary somewhere, where you've included a phone that doesn't actually exist in the acoustic model set.
 
 ## Tips and tricks
 
-+ Add ``-h`` after any command to get a help screen that will also display its argument structure. For example:
+### Validate a corpus
 
-```{r eval = F}
-mfa align -h
-mfa train -h
-```
-
-+ Use the `--clean` flag each time you run the ``align`` command
-+ Don't forget to activate the aligner
-+ Make sure the output folder is empty each time you run the ``align`` command
-+ The input and output folders must be different folders
-+ Many users have trouble reading/writing files to the Desktop folder. If you're having issues using the Desktop, just switch to a different folder like Documents, or Google how to change the read/write permissions on your Desktop folder
-+ And a little more on conda:
-
-If you have created multiple environments, you can list all of your environments using the following command:
-
-```{r eval = F}
-conda info --envs
-```
-
-You can delete an environment with the following command, where ENV_NAME is the name of the environment, like ``aligner``. Make sure that you have deactivated the environment before deleting it.
-
-```{r eval = F}
-conda deactivate
-conda env remove -n ENV_NAME
-```
-
-+ You can inspect the details of any local acoustic model or dictionary using the ``mfa model inspect`` commands. One of the important outputs of this is the assumed phone set:
-
-```{r eval = F}
-mfa model inspect acoustic english_us_arpa
-mfa model inspect dictionary english_us_arpa
-```
-
-+ You can get a list of the local acoustic models and dictionaries in your ``Documents/MFA/pretrained_models/`` folders using the ``mfa model list`` commands:
-
-```{r eval = F}
-mfa model list acoustic
-mfa model list dictionary
-```
-
-+ You can check for problems with your corpus using the ``validate`` command. Such problems might include words in your TextGrids that are not listed in your dictionary, phones in your dictionary that do not have corresponding acoustic models, as well as general problems with your sound file (like a missing waveform -- this has happened to me when an audio file got corrupted during download). Note that checking for audio file problems takes a lot longer, so I frequently add the optional ``--ignore_acoustics`` flag. 
+You can check for problems with your corpus using the ``validate`` command. Such problems might include words in your TextGrids that are not listed in your dictionary, phones in your dictionary that do not have corresponding acoustic models, as well as general problems with your sound file (like a missing waveform -- this has happened to me when an audio file got corrupted during download). Note that checking for audio file problems takes a lot longer, so I frequently add the optional ``--ignore_acoustics`` flag. 
 
 The three arguments required by the validate command are:
 
@@ -313,6 +293,57 @@ mfa validate ~/Documents/myCorpus/mfainput4english/ english_us_arpa english_us_a
 
 mfa validate ~/Documents/myCorpus/mfainput4english/ english_us_arpa english_us_arpa --ignore_acoustics
 ```
-words that are not in your dictionary and problems with your sounds 
 
-+ And finally, there is even more to the MFA than just what I've put here! Definitely poke around the MFA user guide to learn more and find special functions that might make your workflow even easier. 
+### Inspect a model or dictionary
++ You can inspect the details of any local acoustic model or dictionary using the ``mfa model inspect`` commands. You can get information about how to reference it, the phone set, whether it performs speaker adaptation, among other things. I particularly like using this to get the phone set of the model:
+
+```{r eval = F}
+mfa model inspect acoustic english_us_arpa
+mfa model inspect acoustic english_mfa
+
+mfa model inspect dictionary english_us_arpa
+mfa model inspect dictionary english_mfa
+```
+
+### List models and dictionaries
++ You can get a list of the local acoustic models and dictionaries in your ``Documents/MFA/pretrained_models/`` folders using the ``mfa model list`` commands:
+
+```{r eval = F}
+mfa model list acoustic
+mfa model list dictionary
+```
+
+### Get help (with the argument structure!)
++ Add ``-h`` after any command to get a help screen that will also display its argument structure. For example:
+
+```{r eval = F}
+mfa align -h
+mfa train -h
+```
+
+### Handle conda environments
+
+If you have created multiple conda environments, you can list all of these using the following command:
+
+```{r eval = F}
+conda info --envs
+```
+
+You can delete an environment with the following command, where ENV_NAME is the name of the environment, like ``aligner``. Make sure that you have deactivated the environment before deleting it.
+
+```{r eval = F}
+conda deactivate
+conda env remove -n ENV_NAME
+```
+
+### Extra 
+
++ For awhile, it was the case that all phones were represented as a minimum of 3 HMM states, which each have duration 10 ms. This would mean that phones would have a minimum of 30 ms. In MFA, this has been updated where phones can now have varying numbers of HMM states including just 1 state. The minimum duration now is thus 10 ms. [See here for more.](https://montreal-forced-aligner.readthedocs.io/en/latest/user_guide/workflows/train_acoustic_model.html){target="_blank"}
++ The duration granularity will always be 10 ms. (Without further hand alignment, you can't draw conclusions about any difference in duration less than this value.)
++ Use the `--clean` flag each time you run the `align` command
++ Don't forget to activate the aligner
++ Make sure the output folder is empty each time you run the `align` command
++ The input and output folders must be different folders
++ Many users have trouble reading/writing files to the Desktop folder. If you're having issues using the Desktop, just switch to a different folder like Documents, or Google how to change the read/write permissions on your Desktop folder
+
++ And finally, there is even more to the MFA than just what I've put here! It's also frequently updated and enhanced. Definitely poke around the [MFA user guide](https://montreal-forced-aligner.readthedocs.io/en/latest/user_guide/index.html){target="_blank"} and [Github repo](https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner/issues){target="_blank"} to learn more and find special functions that might make your workflow even easier. 
